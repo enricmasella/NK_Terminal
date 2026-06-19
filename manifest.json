@@ -1,0 +1,41 @@
+{
+    "manifest_version": 3,
+    "name": "NK_Terminal",
+    "short_name": "NK",
+    "description": "NK_Terminal - terminal dashboard for new tab.",
+    "version": "1.0.0",
+    "author": "enedil",
+    "developer": {
+        "name": "enedil"
+    },
+    "icons": {
+        "16": "logo.png",
+        "32": "logo.png",
+        "48": "logo.png",
+        "128": "logo.png",
+        "512": "logo.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_title": "NK_Terminal"
+    },
+    "chrome_url_overrides": {
+        "newtab": "terminal.html"
+    },
+    "permissions": [
+        "storage",
+        "webNavigation",
+        "tabs",
+        "system.memory",
+        "system.cpu",
+        "system.storage"
+    ],
+    "host_permissions": [
+        "https://wttr.in/*",
+        "https://ip-api.com/*",
+        "https://ipapi.co/*",
+        "https://ipinfo.io/*"
+    ]
+}
