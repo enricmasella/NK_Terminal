@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NK_Desktop</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ── Theme variables ── */
+:root{--bg:#000;--text:#f5f5f5;--text-dim:#ddd;--text-muted:#888;--accent:#fff;--border:#222;--border-light:#333;--link:#888;--link-hover:#fff;--link-bracket:#555;--prompt:#e8e8e8;--input-caret:#fff;--scrollbar:#333;--modal-bg:#111;--modal-border:#333;--links-bg:#080808;--bottom-bg:#000;--glass:rgba(255,255,255,.05)}
+body.theme-green{--bg:#001a00;--text:#00ff00;--text-dim:#00cc00;--text-muted:#006600;--accent:#00ff00;--border:#003300;--border-light:#005500;--link:#00aa00;--link-hover:#00ff00;--link-bracket:#006600;--prompt:#00ff00;--input-caret:#00ff00;--scrollbar:#005500;--modal-bg:#001a00;--modal-border:#003300;--links-bg:#001a00;--bottom-bg:#001a00;--glass:rgba(0,255,0,.04)}
+body.theme-amber{--bg:#1a0f00;--text:#ffb000;--text-dim:#cc8800;--text-muted:#664400;--accent:#ffcc00;--border:#332200;--border-light:#554400;--link:#cc8800;--link-hover:#ffcc00;--link-bracket:#664400;--prompt:#ffb000;--input-caret:#ffb000;--scrollbar:#554400;--modal-bg:#1a0f00;--modal-border:#332200;--links-bg:#1a0f00;--bottom-bg:#1a0f00;--glass:rgba(255,176,0,.04)}
+body.theme-light{--bg:#eef0f4;--text:#1a1a1a;--text-dim:#444;--text-muted:#888;--accent:#0057ff;--border:#ddd;--border-light:#ccc;--link:#555;--link-hover:#000;--link-bracket:#999;--prompt:#1a1a1a;--input-caret:#000;--scrollbar:#ccc;--modal-bg:#f7f8fa;--modal-border:#e2e4e9;--links-bg:#eee;--bottom-bg:#f5f5f5;--glass:rgba(0,0,0,.04)}
+body.theme-matrix{--bg:#000;--text:#00ff41;--text-dim:#00cc33;--text-muted:#006600;--accent:#00ff41;--border:#003300;--border-light:#005500;--link:#00aa00;--link-hover:#00ff41;--link-bracket:#005500;--prompt:#00ff41;--input-caret:#00ff41;--scrollbar:#005500;--modal-bg:#000;--modal-border:#003300;--links-bg:#000;--bottom-bg:#000;--glass:rgba(0,255,65,.04)}
+body.theme-nord{--bg:#2e3440;--text:#eceff4;--text-dim:#d8dee9;--text-muted:#7b88a1;--accent:#88c0d0;--border:#3b4252;--border-light:#4c566a;--link:#81a1c1;--link-hover:#88c0d0;--link-bracket:#4c566a;--prompt:#88c0d0;--input-caret:#88c0d0;--scrollbar:#4c566a;--modal-bg:#3b4252;--modal-border:#4c566a;--links-bg:#2e3440;--bottom-bg:#2e3440;--glass:rgba(136,192,208,.06)}
+body.theme-dracula{--bg:#282a36;--text:#f8f8f2;--text-dim:#e2e2dc;--text-muted:#6272a4;--accent:#ff79c6;--border:#343646;--border-light:#44475a;--link:#bd93f9;--link-hover:#ff79c6;--link-bracket:#44475a;--prompt:#50fa7b;--input-caret:#50fa7b;--scrollbar:#44475a;--modal-bg:#282a36;--modal-border:#44475a;--links-bg:#21222c;--bottom-bg:#282a36;--glass:rgba(255,121,198,.06)}
+body.theme-solarized{--bg:#002b36;--text:#93a1a1;--text-dim:#839496;--text-muted:#586e75;--accent:#b58900;--border:#073642;--border-light:#0a4552;--link:#268bd2;--link-hover:#b58900;--link-bracket:#0a4552;--prompt:#2aa198;--input-caret:#2aa198;--scrollbar:#0a4552;--modal-bg:#073642;--modal-border:#0a4552;--links-bg:#002b36;--bottom-bg:#002b36;--glass:rgba(181,137,0,.05)}
+body.theme-synthwave{--bg:#241b2f;--text:#f4eee8;--text-dim:#f92aad;--text-muted:#72618a;--accent:#01cdfe;--border:#3a2b4a;--border-light:#4e3963;--link:#ff7edb;--link-hover:#01cdfe;--link-bracket:#4e3963;--prompt:#05ffa1;--input-caret:#05ffa1;--scrollbar:#4e3963;--modal-bg:#241b2f;--modal-border:#4e3963;--links-bg:#1c1523;--bottom-bg:#241b2f;--glass:rgba(1,205,254,.06)}
+
+body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,'Liberation Mono',monospace;font-size:16px;line-height:1.5;height:100vh;overflow:hidden;letter-spacing:0.3px;position:relative}
+body.font-fira{font-family:'Fira Code','Courier New',monospace}
+body.font-jetbrains{font-family:'JetBrains Mono','Courier New',monospace}
+body.font-system{font-family:system-ui,-apple-system,sans-serif}
+
+/* CRT scanline overlay — always on top */
+body.scanlines::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999999;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 1px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 3px);mix-blend-mode:multiply}
+
+/* ── Wallpaper (aurora) ── */
+#wallpaper{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background-size:cover;background-position:center}
+#wallpaper::before,#wallpaper::after{content:'';position:absolute;inset:-25%;background:
+  radial-gradient(38% 38% at 22% 20%,rgba(124,58,237,.30),transparent 62%),
+  radial-gradient(32% 32% at 82% 18%,rgba(34,211,238,.22),transparent 62%),
+  radial-gradient(42% 42% at 52% 82%,rgba(16,185,129,.17),transparent 62%);
+  mix-blend-mode:screen}
+body.wallpaper-custom #wallpaper::before,body.wallpaper-custom #wallpaper::after{content:none}
+#wallpaper::after{animation:drift 46s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate3d(-2%,-3%,0) rotate(.001deg)}to{transform:translate3d(2.5%,2%,0)}}
+@media (prefers-reduced-motion:reduce){#wallpaper::after{animation:none}}
+
+/* ── Desktop quick-link chips (left column) ── */
+#desktop-links{position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column}
+.dl-list{display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 120px);overflow-y:auto;padding:2px}
+.dl-list::-webkit-scrollbar{width:4px}
+.dl-list::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+.dl-chip{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;width:78px;padding:10px 6px 8px;border:none;border-radius:16px;cursor:pointer;color:var(--text);
+  background:color-mix(in srgb,var(--modal-bg) 65%,transparent);backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid var(--modal-border);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+.dl-chip:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.45);border-color:var(--border-light)}
+.dl-chip[draggable="true"]{cursor:grab}
+.dl-chip.dl-dragging{opacity:.35;border-style:dashed}
+.dl-chip.dl-drag-over{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 14px 30px rgba(0,0,0,.45);transform:translateY(-3px)}
+.dl-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);flex:none}
+.dl-label{font-size:10.5px;letter-spacing:.3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim)}
+.dl-btn{border:none;border-radius:6px;padding:6px 0;background:var(--border);color:var(--text);font-family:inherit;font-size:12px;cursor:pointer;transition:color .15s,border-color .15s}
+.dl-btn:hover{color:var(--accent);border:1px solid var(--accent)}
+
+/* ── Quick link add/edit modal ── */
+#link-modal{position:fixed;inset:0;z-index:999997;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(3px)}
+#link-modal.open{display:flex}
+.link-card{position:relative;width:300px;max-width:calc(100vw - 48px);padding:18px;border-radius:14px;display:flex;flex-direction:column;gap:10px;
+  background:color-mix(in srgb,var(--modal-bg) 92%,transparent);backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid var(--modal-border);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+#link-modal-close{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1}
+#link-modal-close:hover{color:#e5484d}
+.link-card h2{margin:0;font-size:15px;letter-spacing:.4px;color:var(--text)}
+.lm-field{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--text-muted);letter-spacing:.3px}
+.lm-field input[type=text]{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:6px;padding:7px 9px;font-family:inherit;font-size:12px;outline:none}
+.lm-field input[type=text]:focus{border-color:var(--accent)}
+.lm-color-row{display:flex;align-items:center;gap:8px}
+.lm-swatches{display:flex;gap:5px;flex-wrap:wrap}
+.lm-swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#888}
+.lm-swatch.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.lm-auto.active{color:var(--accent);border:1px solid var(--accent)}
+.lm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+#lm-save{background:var(--accent);color:var(--bg);border:1px solid transparent}
+  #lm-save:hover{color:var(--bg);border-color:color-mix(in srgb,var(--accent) 60%,#fff)}
+
+/* ── Clock widget (top right, hover controls to resize / recolor) ── */
+#clock-widget{position:fixed;top:16px;right:20px;z-index:2;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+#clock-controls{display:flex;align-items:center;gap:6px;opacity:0;pointer-events:none;transition:opacity .15s}
+#clock-widget:hover #clock-controls{opacity:1;pointer-events:auto}
+#clock-controls button{width:26px;height:26px;border:1px solid var(--border-light);border-radius:8px;background:color-mix(in srgb,var(--modal-bg) 75%,transparent);color:var(--text);font-size:15px;font-weight:700;line-height:1;cursor:pointer}
+#clock-controls button:hover{color:var(--accent);border-color:var(--accent)}
+#clock-controls input[type=color]{width:26px;height:26px;padding:0;border:1px solid var(--border-light);border-radius:8px;background:color-mix(in srgb,var(--modal-bg) 75%,transparent);cursor:pointer}
+#desktop-time{font-size:44px;font-weight:700;letter-spacing:1px;color:var(--text);font-variant-numeric:tabular-nums;text-shadow:0 2px 18px rgba(0,0,0,.45)}
+#desktop-date{font-size:13px;color:var(--text-dim);text-transform:capitalize;letter-spacing:.5px}
+
+/* ── Window layer ── */
+#windows{position:fixed;inset:0;z-index:10;pointer-events:none}
+.window{position:absolute;pointer-events:auto;display:flex;flex-direction:column;min-width:280px;min-height:180px;border-radius:14px;overflow:hidden;
+  background:color-mix(in srgb,var(--modal-bg) 80%,transparent);backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid color-mix(in srgb,var(--modal-border) 85%,transparent);
+  box-shadow:0 18px 50px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05)}
+.window.minimized{display:none}
+.window.maximized{left:8px!important;top:8px!important;width:calc(100vw - 16px)!important;height:calc(100vh - 96px)!important;border-radius:10px}
+.win-titlebar{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:grab;user-select:none;flex:none;background:color-mix(in srgb,var(--modal-bg) 55%,transparent)}
+.win-titlebar:active{cursor:grabbing}
+.win-ic{font-size:15px;width:22px;text-align:center;flex:none}
+.win-title{flex:1;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.win-btns{display:flex;gap:6px;flex:none}
+.wb{width:26px;height:22px;border:none;border-radius:6px;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;line-height:1;transition:background .15s,color .15s;font-family:inherit}
+.wb:hover{background:var(--border);color:var(--text)}
+.wb-close:hover{background:#e5484d;color:#fff}
+.win-body{flex:1;overflow:auto;min-height:0;padding:14px;container:wbody / inline-size}
+.win-body::-webkit-scrollbar{width:8px;height:8px}
+.win-body::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:4px}
+.win-body::-webkit-scrollbar-track{background:transparent}
+.win-body.term-body{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.win-resize{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;z-index:3}
+.win-resize::after{content:'';position:absolute;right:4px;bottom:4px;width:8px;height:8px;border-right:2px solid var(--text-muted);border-bottom:2px solid var(--text-muted);opacity:.5;border-radius:0 0 3px 0}
+
+/* ── Terminal window content ── */
+#term{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 24px 10px;scroll-behavior:smooth}
+#term::-webkit-scrollbar{width:4px}
+#term::-webkit-scrollbar-track{background:transparent}
+#term::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+.l{white-space:pre-wrap;word-break:break-word;min-height:1.35em}
+.l.d{color:var(--text-dim)}
+.l.p{color:var(--prompt)}
+.l.r{color:var(--text)}
+.l.s{color:var(--text-muted);user-select:none}
+.l.h{color:var(--accent);font-weight:700;margin-top:.6em}
+.l.hol{color:var(--accent);font-weight:700}
+.l.ok{color:#22c55e}
+.l.warn{color:#e5a50a}
+.l.block{color:var(--text);background:color-mix(in srgb,var(--accent) 6%,transparent);border-left:2px solid var(--accent);padding:8px 10px;margin:4px 0;border-radius:0 4px 4px 0}
+.l.ai-reply{color:var(--text)}
+.l.fetching{color:var(--text-muted);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+#links{border-top:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;gap:4px 18px;flex-wrap:wrap;background:color-mix(in srgb,var(--links-bg) 60%,transparent);min-height:32px;font-size:14px;flex:none}
+#links .lk{color:var(--link);cursor:pointer;text-decoration:none;transition:color .2s;white-space:nowrap}
+#links .lk::before{content:'[';color:var(--link-bracket)}
+#links .lk::after{content:']';color:var(--link-bracket)}
+#links .lk:hover{color:var(--link-hover)}
+#links .lk[draggable="true"]{cursor:grab;user-select:none}
+#links .lk.dragging{opacity:.3;transition:opacity .15s}
+#links .lk.drag-over{position:relative}
+#links .lk.drag-over::after{content:'';position:absolute;left:-2px;top:-2px;bottom:-2px;width:3px;background:var(--accent);border-radius:2px;animation:dragPulse .6s ease-in-out infinite alternate}
+@keyframes dragPulse{from{opacity:.4}to{opacity:1}}
+#links .empty{color:#444;font-style:italic;font-size:13px}
+#bottom{border-top:1px solid var(--border);padding:10px 24px 14px;display:flex;align-items:center;gap:10px;flex:none}
+#prompt{color:var(--prompt);font-family:inherit;font-size:18px;white-space:pre;user-select:none}
+#inp{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:inherit;font-size:18px;caret-color:var(--input-caret)}
+#inp::placeholder{color:var(--text-muted)}
+
+/* ── Dock ── */
+#dock{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:999990;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:18px;
+  background:color-mix(in srgb,var(--modal-bg) 68%,transparent);backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--modal-border);box-shadow:0 12px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.dock-items{display:flex;gap:4px;align-items:center}
+.dock-app{position:relative;width:44px;height:44px;border:none;border-radius:12px;background:transparent;color:var(--text);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s,box-shadow .15s;font-family:inherit}
+.dock-app:hover{transform:translateY(-3px);background:color-mix(in srgb,var(--accent) 12%,transparent);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.dock-app.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.dock-sep{width:1px;height:26px;background:var(--modal-border);margin:0 2px}
+#dock-clock{font-family:inherit;font-size:13px;color:var(--text-muted);padding:0 6px;min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+#gear{width:34px;height:34px;border:none;border-radius:10px;background:transparent;color:var(--text-muted);font-size:17px;cursor:pointer;transition:color .2s,background .2s,transform .2s;font-family:inherit;display:flex;align-items:center;justify-content:center}
+#gear:hover{color:var(--text);background:var(--border);transform:rotate(20deg)}
+
+/* ── Settings overlay (above dock) ── */
+#settings-overlay{position:fixed;inset:0;z-index:999995;display:none;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
+#settings-overlay.open{display:flex;align-items:center;justify-content:center}
+#settings-card{background:var(--modal-bg);border:1px solid var(--modal-border);border-radius:12px;padding:22px 26px 26px;width:460px;max-width:92vw;max-height:84vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.6);position:relative}
+#settings-card h2{margin:0 0 14px;color:var(--accent);font-size:18px}
+#settings-card .sec{margin-bottom:20px}
+#settings-card .sec:last-child{margin-bottom:0}
+#settings-card .sec-title{color:var(--text-muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+#settings-card label{display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px;cursor:pointer;padding:4px 0}
+#settings-card label:hover{color:var(--accent)}
+#settings-card select,#settings-card input[type="text"],#settings-card input[type="password"],#settings-card input[type="date"]{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:13px;outline:0;width:100%;margin-top:4px}
+#settings-card select:focus,#settings-card input:focus{border-color:var(--text-muted)}
+#settings-card input[type="range"]{width:100%;accent-color:var(--accent);padding:0;margin-top:6px}
+#settings-card input[type="color"]{width:44px;height:30px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border-light);background:var(--border)}
+#settings-card input[type="file"]{width:100%;font-size:11px;color:var(--text-muted)}
+#settings-card input[type="file"]::file-selector-button{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:4px;padding:4px 10px;font-family:inherit;font-size:12px;cursor:pointer;margin-right:8px}
+#settings-card input[type="file"]::file-selector-button:hover{color:var(--accent);border-color:var(--accent)}
+.color-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.color-row label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
+.color-row label input[type="color"]{width:36px;height:26px}
+.wp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.wp-preset{border:1px solid var(--border-light);border-radius:8px;height:46px;cursor:pointer;background-size:cover;background-position:center;transition:border-color .15s,box-shadow .15s}
+.wp-preset:hover{border-color:var(--text-muted)}
+.wp-preset.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.wp-url{display:flex;gap:6px;margin-top:6px}
+.wp-url input[type="text"]{flex:1}
+.wp-url button{flex:none}
+.mini-form button,#panel-ai-test,.wp-url button{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:13px;cursor:pointer}
+.mini-form button:hover,#panel-ai-test:hover,.wp-url button:hover{border-color:var(--accent);color:var(--accent)}
+.wp-reset{display:block;margin-top:10px;width:100%;background:transparent;color:var(--text-muted);border:1px dashed var(--border-light);border-radius:6px;padding:6px 0;font-family:inherit;font-size:12px;cursor:pointer}
+.wp-reset:hover{color:var(--accent);border-color:var(--accent)}
+#settings-card .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+#settings-card .theme-btn{border:1px solid var(--border-light);border-radius:6px;padding:8px 4px;text-align:center;cursor:pointer;font-size:11px;color:var(--text-muted);background:var(--border);transition:all .15s}
+#settings-card .theme-btn:hover{border-color:var(--text-muted)}
+#settings-card .theme-btn.active{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--modal-bg))}
+#settings-card .theme-btn .swatch{display:block;width:18px;height:18px;border-radius:50%;margin:0 auto 4px;border:1px solid var(--border-light)}
+#settings-card .toggles label input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
+.panel-tabs{display:flex;gap:4px;margin:0 0 16px;border-bottom:1px solid var(--modal-border);padding-bottom:0}
+.panel-tab{background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:13px;padding:8px 10px;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s}
+.panel-tab:hover{color:var(--text)}
+.panel-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.panel-page{display:none}
+.panel-page.active{display:block}
+.row-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);font-size:13px}
+.row-item:last-child{border-bottom:none}
+.row-item .ri-label{flex:1;color:var(--text);word-break:break-word}
+.row-item .ri-url{color:var(--text-muted);font-size:11px;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-item .ri-date{color:var(--accent);font-size:11px;min-width:78px}
+.row-item .ri-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:2px 4px;font-family:inherit}
+.row-item .ri-del:hover{color:var(--accent)}
+.row-item .ri-edit{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;padding:2px 4px;font-family:inherit;margin-right:2px}
+.row-item .ri-edit:hover{color:var(--accent)}
+.row-item input[type="checkbox"]{accent-color:var(--accent)}
+.empty-hint{color:var(--text-muted);font-size:12px;font-style:italic;padding:6px 0}
+.mini-form{display:flex;gap:6px;margin-top:10px}
+.mini-form input{flex:1}
+.mini-form button,#panel-ai-test{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:4px;padding:6px 12px;font-family:inherit;font-size:13px;cursor:pointer}
+.mini-form button:hover,#panel-ai-test:hover{border-color:var(--accent);color:var(--accent)}
+.list-scroll{max-height:160px;overflow-y:auto}
+.lay-row .ri-label{flex:1;color:var(--text);word-break:break-word}
+.lay-row .ri-default{color:var(--accent);font-size:11px;min-width:66px}
+.lay-row .ri-act{background:none;border:1px solid var(--border-light);border-radius:4px;color:var(--text-muted);font-family:inherit;font-size:11px;cursor:pointer;padding:3px 8px;transition:color .15s,border-color .15s}
+.lay-row .ri-act:hover{color:var(--accent);border-color:var(--accent)}
+.lay-hint{font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5}
+#panel-ai-status{font-size:12px;color:var(--text-muted);margin-top:8px}
+#settings-close{position:absolute;top:12px;right:16px;cursor:pointer;color:var(--text-muted);font-size:18px;transition:color .2s;background:none;border:none;font-family:inherit}
+#settings-close:hover{color:var(--text)}
+
+/* ── Horario app ── */
+.hc-section{margin-top:14px}
+.hc-section:first-child{margin-top:0}
+.hc-title{font-size:11px;letter-spacing:1.4px;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.hc-next{position:relative;padding:14px 16px;border-radius:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 12%,var(--modal-bg)),color-mix(in srgb,var(--modal-bg) 82%,transparent));border:1px solid var(--modal-border);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.hc-next-tag{font-size:10px;letter-spacing:1.8px;color:var(--text-muted);font-weight:700;margin-bottom:8px}
+.hc-next-tag.live{color:var(--accent)}
+.hc-next-main{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.hc-chip{color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--hc);flex:none}
+.hc-chip-xl{font-size:13px;padding:6px 14px}
+.hc-next-subj{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-next-meta{display:flex;gap:14px;font-size:12px;color:var(--text-dim);flex-wrap:wrap}
+.hc-next-when{font-variant-numeric:tabular-nums}
+.hc-next-count{color:var(--accent);font-weight:700}
+.hc-next-room{color:var(--text-muted)}
+.hc-day-head{font-size:11px;color:var(--accent);margin-bottom:4px;font-weight:700;text-transform:capitalize}
+.hc-holiday{font-size:11px;color:var(--text-muted);padding:4px 2px}
+.hc-empty{font-size:11px;color:var(--text-muted);font-style:italic;padding:4px 2px}
+.hc-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:color-mix(in srgb,var(--modal-bg) 40%,transparent);border:1px solid var(--border);margin-bottom:6px;min-width:0}
+.hc-row.hc-now{border-color:color-mix(in srgb,var(--hc) 70%,transparent);background:color-mix(in srgb,var(--hc) 12%,transparent)}
+.hc-time{font-size:12px;color:var(--text-dim);font-variant-numeric:tabular-nums;flex:none}
+.hc-subject{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hc-room{font-size:11px;color:var(--text-muted);flex:none}
+.hc-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,0.65fr) minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,1.15fr);gap:8px}
+.hc-col{min-width:0;border-radius:12px;padding:6px;background:color-mix(in srgb,var(--modal-bg) 32%,transparent);border:1px solid var(--border)}
+.hc-col.hc-today{border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
+.hc-col-head{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:center;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:6px;font-weight:700}
+.hc-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.hc-nav-btn{border:none;background:var(--border);color:var(--text);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;font-size:13px}
+.hc-nav-btn:hover{color:var(--accent)}
+.hc-nav-label{flex:1;text-align:center;font-size:12px;color:var(--text-dim)}
+.hc-nav-today{background:color-mix(in srgb,var(--accent) 20%,var(--border))}
+
+/* Narrow horario windows: drop non-essential cells before overflowing */
+@container wbody (max-width: 1040px){.hc-room{display:none}}
+@container wbody (max-width: 660px){.hc-time{display:none}}
+@container wbody (max-width: 460px){.hc-next-subj{font-size:13px}.hc-chip-xl{display:none}}
+
+/* ── Weather app ── */
+.wx{display:flex;flex-direction:column;gap:12px}
+.wx-loc{font-size:12px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;text-align:center}
+.wx-main{display:flex;align-items:center;justify-content:center;gap:14px}
+.wx-temp{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
+.wx-cond{font-size:15px;color:var(--text-dim);max-width:140px}
+.wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wx-item{display:flex;justify-content:space-between;font-size:12px;background:var(--border);border-radius:8px;padding:6px 10px;color:var(--text-dim)}
+.wx-item b{color:var(--text)}
+.wx-refresh{align-self:center;border:none;border-radius:8px;padding:7px 18px;background:var(--border);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
+.wx-refresh:hover{color:var(--accent);border:1px solid var(--accent)}
+
+/* ── System monitor app ── */
+.sys{display:flex;flex-direction:column;gap:6px}
+.sys-row{display:flex;justify-content:space-between;font-size:13px;border-bottom:1px dashed var(--border);padding:5px 2px}
+.sys-k{color:var(--text-muted)}
+.sys-v{color:var(--text);font-variant-numeric:tabular-nums;text-align:right}
+
+/* ── Notes/Tasks/Agenda apps ── */
+.wapp{margin-bottom:12px}
+.wapp-title{font-size:11px;letter-spacing:1.4px;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.wapp .row-item{border-bottom:1px dashed var(--border)}
+.wapp .mini-form{margin-top:8px}
+.wapp input[type="text"],.wapp input[type="date"]{background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;outline:none}
+.wapp input:focus{border-color:var(--accent)}
+
+/* ── AI chat app ── */
+.aid{display:flex;flex-direction:column;gap:8px;height:100%}
+.aid-head{display:flex;align-items:center;gap:8px;padding:2px 4px;border-bottom:1px solid var(--border);flex:none}
+.aid-head-info{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.aid-head-prov{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aid-head-model{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aid-reset{border:1px solid var(--border-light);background:var(--border);color:var(--text-muted);border-radius:6px;padding:3px 8px;font-family:inherit;font-size:11px;cursor:pointer;flex:none}
+.aid-reset:hover{color:var(--accent);border-color:var(--accent)}
+.aid-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px;min-height:0}
+.aid-msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.aid-user{align-self:flex-end;background:color-mix(in srgb,var(--accent) 16%,var(--modal-bg));border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-bottom-right-radius:4px}
+.aid-bot{align-self:flex-start;background:var(--border);border-bottom-left-radius:4px}
+.aid-thinking{color:var(--text-muted);font-style:italic}
+.aid-img{max-width:180px;border-radius:8px;margin-top:6px;display:block}
+.aid-form{display:flex;gap:6px;flex:none;align-items:center}
+.aid-form input{flex:1;background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13px;outline:none;min-width:0}
+.aid-form input:focus{border-color:var(--accent)}
+.aid-form button{border:none;border-radius:8px;padding:0 16px;background:var(--border);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
+.aid-form button:hover{color:var(--accent);border:1px solid var(--accent)}
+.aid-attach{flex:none !important;padding:0 10px !important;font-size:16px !important;line-height:1}
+.aid-attach-row{display:flex;align-items:center;gap:8px;flex:none;padding:4px;border:1px dashed var(--border-light);border-radius:10px;background:color-mix(in srgb,var(--modal-bg) 40%,transparent)}
+.aid-attach-row img{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--border-light)}
+.aid-attach-name{font-size:11px;color:var(--text-dim);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aid-attach-x{border:none !important;background:transparent !important;padding:2px 6px !important;color:var(--text-muted);cursor:pointer;font-size:13px}
+.aid-attach-x:hover{color:var(--accent) !important;border:none !important}
+.aid-hint{font-size:12px;color:var(--text-muted);text-align:center;padding:16px}
+
+/* ── Calculator app ── */
+.calc{display:flex;flex-direction:column;gap:10px}
+.calc-screen{background:var(--border);border:1px solid var(--border-light);border-radius:10px;padding:12px 14px;text-align:right;font-size:26px;min-height:52px;display:flex;align-items:center;justify-content:flex-end;color:var(--text);overflow:hidden;font-variant-numeric:tabular-nums}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.cc-btn{border:none;border-radius:10px;background:var(--border);color:var(--text);font-family:inherit;font-size:17px;cursor:pointer;padding:12px 0;transition:background .12s,transform .06s}
+.cc-btn:hover{background:var(--border-light)}
+.cc-btn:active{transform:scale(.95)}
+.cc-op{color:var(--accent)}
+.cc-eq{background:color-mix(in srgb,var(--accent) 22%,var(--border));color:var(--accent);font-weight:700}
+.cc-fn{color:var(--text-muted)}
+
+/* ── Pomodoro app ── */
+.pm{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:6px}
+.pm-mode{font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;font-weight:700}
+.pm-ring{position:relative;width:180px;height:180px}
+.pm-ring svg{transform:rotate(-90deg)}
+.pm-bg{stroke:var(--border);fill:none;stroke-width:8}
+.pm-fg{stroke:var(--accent);fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .3s linear}
+.pm-time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:700;font-variant-numeric:tabular-nums}
+.pm-controls{display:flex;gap:8px}
+.pm-btn{border:none;border-radius:10px;padding:8px 16px;background:var(--border);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
+.pm-btn:hover{color:var(--accent)}
+.pm-go{background:color-mix(in srgb,var(--accent) 22%,var(--border));color:var(--accent);font-weight:700}
+.pm-ticks{display:flex;gap:6px;font-size:13px}
+.pm-tick{color:var(--text-muted)}
+.pm-tick.on{color:var(--accent)}
+
+/* ── Enlaces app ── */
+.la-form{display:flex;gap:6px;margin-bottom:10px}
+.la-form input{flex:1;background:var(--border);color:var(--text);border:1px solid var(--border-light);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:13px;outline:none;min-width:0}
+.la-form input:focus{border-color:var(--accent)}
+.la-form .dl-btn{flex:none;padding:0 14px}
+.la-list{display:flex;flex-direction:column;gap:6px}
+.la-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:color-mix(in srgb,var(--modal-bg) 40%,transparent);border:1px solid var(--border)}
+.la-name{flex:1;color:var(--accent);text-decoration:none;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.la-url{color:var(--text-muted);font-size:11px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Boot veil + entrance animations (gated on body.boot-done, added when init settles) ── */
+#boot-veil{position:fixed;inset:0;z-index:999998;background:var(--bg);pointer-events:none;transition:opacity .7s ease,background-color .5s ease}
+body.boot-done #boot-veil{opacity:0}
+@keyframes winIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes dockIn{from{opacity:0;transform:translate(-50%,26px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes chipIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes overlayIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+body.boot-done #windows .window{animation:winIn .45s cubic-bezier(.2,.7,.3,1) both}
+body.boot-done #windows .window:nth-child(1){animation-delay:.05s}
+body.boot-done #windows .window:nth-child(2){animation-delay:.18s}
+body.boot-done #windows .window:nth-child(3){animation-delay:.31s}
+body.boot-done #dock{animation:dockIn .5s ease-out .05s both}
+body.boot-done #desktop-links .dl-chip{animation:chipIn .4s ease-out backwards}
+body.boot-done #desktop-links .dl-chip:nth-child(1){animation-delay:.05s}
+body.boot-done #desktop-links .dl-chip:nth-child(2){animation-delay:.12s}
+body.boot-done #desktop-links .dl-chip:nth-child(3){animation-delay:.19s}
+body.boot-done #desktop-links .dl-chip:nth-child(4){animation-delay:.26s}
+body.boot-done #desktop-links .dl-chip:nth-child(5){animation-delay:.33s}
+body.boot-done #clock-widget{animation:fadeIn .5s ease .22s backwards}
+#settings-overlay.open{animation:overlayIn .22s ease-out}
+#link-modal.open{animation:overlayIn .22s ease-out}
+#desktop-time{transition:font-size .2s ease,color .2s ease}
+#desktop-date{transition:font-size .2s ease,color .2s ease}
+.window{transition:border-color .2s ease,box-shadow .2s ease,border-radius .2s ease}
+@media (prefers-reduced-motion:reduce){body.boot-done #windows .window,body.boot-done #dock,body.boot-done #desktop-links .dl-chip,body.boot-done #clock-widget,#settings-overlay.open,#link-modal.open{animation:none}}
+</style>
+</head>
+<body class="theme-dark">
+<!-- Boot veil: opaque cover hides theme/wallpaper swap; fades when body.boot-done is set -->
+<div id="boot-veil"></div>
+<div id="wallpaper"></div>
+
+<div id="desktop-links"></div>
+
+<div id="clock-widget">
+  <div id="clock-controls">
+    <button id="clock-minus" title="Reducir tamaño">&#8722;</button>
+    <input type="color" id="clock-color" title="Color de los números">
+    <button id="clock-plus" title="Aumentar tamaño">+</button>
+  </div>
+  <div id="desktop-time"></div>
+  <div id="desktop-date"></div>
+</div>
+
+<div id="windows"></div>
+
+<div id="term-content" hidden>
+  <div id="term"></div>
+  <div id="links"></div>
+  <div id="bottom">
+    <span id="prompt">$</span>
+    <input type="text" id="inp" placeholder="type a message... (try 'help')" spellcheck="false" autocomplete="off">
+  </div>
+</div>
+
+<div id="dock">
+  <div class="dock-items"></div>
+  <div class="dock-sep"></div>
+  <span id="dock-clock">--:--</span>
+  <button id="gear" title="Personalizar">&#9881;</button>
+</div>
+
+<div id="settings-overlay">
+  <div id="settings-card">
+    <button id="settings-close" aria-label="Close">&times;</button>
+    <h2>Personalizar</h2>
+
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="display">Pantalla</button>
+      <button class="panel-tab" data-tab="links">Enlaces</button>
+      <button class="panel-tab" data-tab="widgets">Widgets</button>
+      <button class="panel-tab" data-tab="ai">IA</button>
+      <button class="panel-tab" data-tab="layouts">Layouts</button>
+    </div>
+
+    <div class="panel-page active" id="page-display">
+      <div class="sec">
+        <div class="sec-title">Tema</div>
+        <div class="theme-grid" id="theme-grid"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Fondo del escritorio</div>
+        <div class="wp-grid" id="wp-grid"></div>
+        <div class="wp-url">
+          <input type="text" id="set-wallpaper-url" placeholder="URL de imagen...">
+          <button id="wp-apply-url" type="button">Aplicar</button>
+        </div>
+        <label>Ajustes de imagen</label>
+        <label style="margin-top:8px">Oscurecer <input type="range" id="set-wallpaper-dim" min="0" max="90" value="0"><span id="wallpaper-dim-val" style="color:var(--text-muted);font-size:11px"></span></label>
+        <label>Desenfocar <input type="range" id="set-wallpaper-blur" min="0" max="30" value="0"><span id="wallpaper-blur-val" style="color:var(--text-muted);font-size:11px"></span></label>
+        <label style="margin-top:4px">Imagen local <input type="file" id="set-wallpaper-file" accept="image/*"></label>
+        <button id="wp-reset" class="wp-reset" type="button">Quitar fondo (volver a la aurora)</button>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Colores personalizados</div>
+        <div class="color-row">
+          <label>Acento <input type="color" id="set-color-accent" value="#ffffff"></label>
+          <label>Texto <input type="color" id="set-color-text" value="#f5f5f5"></label>
+          <label>Fondo <input type="color" id="set-color-bg" value="#000000"></label>
+        </div>
+        <button id="colors-reset" class="wp-reset" type="button">Usar colores del tema</button>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Fuente</div>
+        <label>Familia
+          <select id="set-font">
+            <option value="courier">Courier (por defecto)</option>
+            <option value="fira">Fira Code</option>
+            <option value="jetbrains">JetBrains Mono</option>
+            <option value="system">System UI</option>
+          </select>
+        </label>
+        <label>Tamaño
+          <select id="set-size">
+            <option value="14">14px</option>
+            <option value="16" selected>16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+          </select>
+        </label>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Saludo</div>
+        <input type="text" id="set-greeting" placeholder="Mensaje personalizado (vacío = automático)" maxlength="60">
+      </div>
+      <div class="sec">
+        <div class="sec-title">Disposición</div>
+        <div class="toggles">
+          <label><input type="checkbox" id="set-weather" checked> Mostrar sección de clima</label>
+          <label><input type="checkbox" id="set-system" checked> Mostrar info del sistema</label>
+          <label><input type="checkbox" id="set-bootanim" checked> Animación de arranque</label>
+          <label><input type="checkbox" id="set-scanlines"> Efecto CRT</label>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Hora</div>
+        <div class="toggles">
+          <label><input type="checkbox" id="set-hour12" checked> Formato 12h</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-page" id="page-links">
+      <div class="sec">
+        <div class="sec-title">Enlaces rápidos</div>
+        <div class="list-scroll" id="panel-links-list"></div>
+        <button id="panel-links-add" class="dl-btn" type="button">+ Añadir enlace</button>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Iconos</div>
+        <label>Tema
+          <select id="set-icon-theme">
+            <option value="">Automático</option>
+            <option value="mono">Monocromo</option>
+            <option value="rainbow">Arcoíris</option>
+            <option value="transparent">Transparente</option>
+          </select>
+        </label>
+        <label>Forma
+          <select id="set-icon-shape">
+            <option value="circle">Círculo</option>
+            <option value="rounded">Redondeado</option>
+            <option value="square">Cuadrado</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-page" id="page-widgets">
+      <div class="sec">
+        <div class="sec-title">Notas</div>
+        <div class="list-scroll" id="panel-notes-list"></div>
+        <form class="mini-form" id="panel-note-form">
+          <input type="text" id="panel-note-input" placeholder="nueva nota...">
+          <button type="submit">Añadir</button>
+        </form>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Tareas</div>
+        <div class="list-scroll" id="panel-tasks-list"></div>
+        <form class="mini-form" id="panel-task-form">
+          <input type="text" id="panel-task-input" placeholder="nueva tarea...">
+          <button type="submit">Añadir</button>
+        </form>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Agenda</div>
+        <div class="list-scroll" id="panel-agenda-list"></div>
+        <form class="mini-form" id="panel-agenda-form">
+          <input type="date" id="panel-agenda-date" style="max-width:150px">
+          <input type="text" id="panel-agenda-input" placeholder="evento...">
+          <button type="submit">Añadir</button>
+        </form>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Horario</div>
+        <div class="mini-form" style="flex-wrap:wrap">
+          <input type="date" id="panel-hc-start" title="Inicio de curso" style="max-width:150px">
+          <input type="date" id="panel-hc-end" title="Fin de curso" style="max-width:150px">
+          <button type="button" id="panel-hc-save-dates">Guardar fechas</button>
+        </div>
+        <div class="sec-title" style="margin-top:8px">Clases semanales</div>
+        <div class="list-scroll" id="panel-hc-weekly"></div>
+        <form class="mini-form" id="panel-hc-form" style="flex-wrap:wrap">
+          <select id="panel-hc-dow" style="width:auto;max-width:110px">
+            <option value="0">Lunes</option>
+            <option value="1">Martes</option>
+            <option value="2">Miércoles</option>
+            <option value="3">Jueves</option>
+            <option value="4">Viernes</option>
+          </select>
+          <input type="time" id="panel-hc-start-time" title="Inicio" style="max-width:110px">
+          <input type="time" id="panel-hc-end-time" title="Fin" style="max-width:110px">
+          <input type="text" id="panel-hc-subject" placeholder="asignatura">
+          <input type="text" id="panel-hc-room" placeholder="aula" style="max-width:90px">
+          <button type="submit">Añadir clase</button>
+        </form>
+        <div class="sec-title" style="margin-top:8px">Festivos</div>
+        <div class="list-scroll" id="panel-hc-holidays"></div>
+        <form class="mini-form" id="panel-hc-hform" style="flex-wrap:wrap">
+          <input type="date" id="panel-hc-hfrom" title="Desde" style="max-width:140px">
+          <input type="date" id="panel-hc-hto" title="Hasta (opcional)" style="max-width:140px">
+          <input type="text" id="panel-hc-hreason" placeholder="motivo">
+          <button type="submit">Añadir festivo</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel-page" id="page-ai">
+      <div class="sec">
+        <div class="sec-title">Proveedor</div>
+        <select id="panel-ai-provider">
+          <option value="">No configurado</option>
+        </select>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Modelo</div>
+        <input type="text" id="panel-ai-model" placeholder="usa el modelo por defecto">
+      </div>
+      <div class="sec" id="panel-ai-baseurl-row" style="display:none">
+        <div class="sec-title">Base URL</div>
+        <input type="text" id="panel-ai-baseurl" placeholder="http://localhost:11434/v1">
+      </div>
+      <div class="sec">
+        <div class="sec-title">API Key <span style="text-transform:none;letter-spacing:0">(solo local)</span></div>
+        <input type="password" id="panel-ai-key" placeholder="sk-...">
+      </div>
+      <div class="sec">
+        <button id="panel-ai-test" type="button">Probar conexión</button>
+        <div id="panel-ai-status"></div>
+      </div>
+    </div>
+
+    <div class="panel-page" id="page-layouts">
+      <div class="sec">
+        <div class="sec-title">Disposición de ventanas</div>
+        <p class="lay-hint">Guarda la posición y el tamaño actuales de tus ventanas. El layout marcado como default se aplica al iniciar NK_Desktop.</p>
+        <form class="mini-form" id="panel-layout-form">
+          <input type="text" id="panel-layout-name" placeholder="Layout 1" maxlength="24">
+          <button type="submit">Guardar actual</button>
+        </form>
+        <div class="list-scroll" id="panel-layouts-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="link-modal">
+  <div class="link-card">
+    <button id="link-modal-close" aria-label="Close">&times;</button>
+    <h2 id="link-modal-title">Nuevo enlace</h2>
+    <label class="lm-field">Nombre
+      <input type="text" id="lm-name" maxlength="40" placeholder="Nombre">
+    </label>
+    <label class="lm-field">URL
+      <input type="text" id="lm-url" placeholder="https://..." spellcheck="false">
+    </label>
+    <div class="lm-field">
+      <span>Color del icono</span>
+      <div class="lm-color-row">
+        <div class="lm-swatches" id="lm-swatches"></div>
+        <input type="color" id="lm-color" value="#7c3aed">
+        <button id="lm-color-auto" class="dl-btn lm-auto" type="button">Auto</button>
+      </div>
+    </div>
+    <div class="lm-actions">
+      <button id="lm-cancel" class="dl-btn" type="button">Cancelar</button>
+      <button id="lm-save" class="dl-btn" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
